@@ -6,6 +6,7 @@ import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
 import android.view.View;
 import android.widget.ImageView;
+import android.widget.TextView;
 
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
@@ -17,11 +18,13 @@ import java.net.URL;
 
 public class MainActivity extends AppCompatActivity {
     ImageView img;
+    TextView tv;
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
         img=findViewById(R.id.imageView);
+        tv=findViewById(R.id.textView);
     }
     public void click1(View v)
     {
@@ -39,10 +42,20 @@ public class MainActivity extends AppCompatActivity {
                     InputStream inputStream=conn.getInputStream();
                     ByteArrayOutputStream bos=new ByteArrayOutputStream();
                     byte[] buf=new byte[1024];
+                    final int totallength=conn.getContentLength();
+                    int sum=0;
                     int length;
                     while((length=inputStream.read(buf)) !=-1)
                     {
+                        sum +=length;
+                        final int tmp=sum;
                         bos.write(buf,0,length);
+                        runOnUiThread(new Runnable() {
+                            @Override
+                            public void run() {
+                                tv.setText(String.valueOf(tmp)+"/"+totallength);
+                            }
+                        });
                     }
                     byte[] results=bos.toByteArray();
                     final Bitmap bmp= BitmapFactory.decodeByteArray(
